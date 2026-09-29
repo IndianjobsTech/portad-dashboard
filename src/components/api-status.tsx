@@ -9,7 +9,7 @@ type State =
   | { kind: "online"; version: string; latencyMs: number }
   | { kind: "offline"; detail: string };
 
-export default function ApiStatus() {
+export default function ApiStatus({ compact = false }: { compact?: boolean }) {
   const [state, setState] = useState<State>({ kind: "checking" });
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function ApiStatus() {
         const res = await fetch(`${API_URL}/healthz`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const body = (await res.json()) as { status?: string; version?: string };
-        if (body.status !== "ok") throw new Error("unexpected status payload");
+        if (body.status !== "ok") throw new Error("unexpected payload");
         if (!cancelled) {
           setState({
             kind: "online",
@@ -31,7 +31,10 @@ export default function ApiStatus() {
         }
       } catch (err) {
         if (!cancelled) {
-          setState({ kind: "offline", detail: err instanceof Error ? err.message : "error" });
+          setState({
+            kind: "offline",
+            detail: err instanceof Error ? err.message : "error",
+          });
         }
       }
     };
@@ -44,29 +47,47 @@ export default function ApiStatus() {
     };
   }, []);
 
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-950">
+  const dot =
+    state.kind === "online"
+      ? "bg-emerald-400"
+      : state.kind === "offline"
+        ? "bg-rose-400"
+        : "bg-amber-400 animate-pulse-dot";
+
+  const label =
+    state.kind === "checking"
+      ? "checking API…"
+      : state.kind === "online"
+        ? `API online · v${state.version}`
+        : "API unreachable";
+
+  const detail =
+    state.kind === "online"
+      ? `${state.latencyMs} ms`
+      : state.kind === "offline"
+        ? state.detail
+        : "…";
+
+  if (compact) {
+    return (
       <span
-        aria-hidden
-        className={
-          "inline-block h-2.5 w-2.5 rounded-full " +
-          (state.kind === "online"
-            ? "bg-emerald-500"
-            : state.kind === "offline"
-              ? "bg-red-500"
-              : "animate-pulse bg-amber-500")
-        }
-      />
-      <span className="font-medium text-zinc-800 dark:text-zinc-100">
-        {state.kind === "checking" && "Checking API…"}
-        {state.kind === "online" && `API online · v${state.version}`}
-        {state.kind === "offline" && "API unreachable"}
+        className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] text-frost-400"
+        title={API_URL}
+      >
+        <span className={"h-1.5 w-1.5 rounded-full " + dot} />
+        <span className="font-mono">{label}</span>
       </span>
-      <span className="text-zinc-500 dark:text-zinc-400">
-        {state.kind === "online" && `${state.latencyMs} ms`}
-        {state.kind === "offline" && state.detail}
-        {state.kind === "checking" && "…"}
-      </span>
+    );
+  }
+
+  return (
+    <div
+      className="glass inline-flex items-center gap-3 rounded-full px-4 py-2.5 text-sm"
+      title={API_URL}
+    >
+      <span className={"h-2 w-2 rounded-full " + dot} />
+      <span className="font-medium text-frost-100">{label}</span>
+      <span className="font-mono text-xs text-frost-500">{detail}</span>
     </div>
   );
 }

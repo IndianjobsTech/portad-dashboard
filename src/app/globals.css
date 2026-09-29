@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,15 +7,178 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-space-950: #040b1a;
+  --color-space-900: #050d1f;
+  --color-space-850: #071230;
+  --color-space-800: #0a1635;
+  --color-space-700: #0f2049;
+  --color-navy-600: #16386f;
+  --color-brand-700: #0f4fd6;
+  --color-brand-600: #1154e0;
+  --color-brand-500: #1668ff;
+  --color-brand-400: #3d8bff;
+  --color-brand-300: #79b4ff;
+  --color-ice-500: #00a8e8;
+  --color-ice-400: #00c6ff;
+  --color-frost-50: #f2f6fd;
+  --color-frost-100: #e8eef9;
+  --color-frost-300: #b9c8e0;
+  --color-frost-400: #9fb3d1;
+  --color-frost-500: #6b82a6;
+  --color-frost-600: #4c6284;
+}
+
+:root {
+  --background: #050d1f;
+  --foreground: #e8eef9;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(22, 104, 255, 0.35);
+  color: #ffffff;
+}
+
+.text-gradient-brand {
+  background-image: linear-gradient(120deg, #7ad7ff 0%, #1668ff 55%, #0f4fd6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-soft {
+  background-image: linear-gradient(180deg, #ffffff 25%, #a9c4ea 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-gradient {
+  background-image: linear-gradient(135deg, #1668ff 0%, #00b4ff 100%);
+  box-shadow:
+    0 10px 30px -10px rgba(22, 104, 255, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-gradient:hover {
+  box-shadow:
+    0 14px 34px -8px rgba(22, 104, 255, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(160, 195, 255, 0.11);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-strong {
+  background: rgba(9, 22, 52, 0.72);
+  border: 1px solid rgba(160, 195, 255, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.hairline {
+  box-shadow: inset 0 1px 0 rgba(214, 230, 255, 0.06);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(125, 170, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 170, 255, 0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 35%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 35%, transparent 78%);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.marquee {
+  animation: portad-marquee 46s linear infinite;
+}
+
+.marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes portad-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-floaty {
+  animation: portad-floaty 7s ease-in-out infinite;
+}
+
+.animate-floaty-slow {
+  animation: portad-floaty 9s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+@keyframes portad-floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.animate-drift {
+  animation: portad-drift 16s ease-in-out infinite alternate;
+}
+
+@keyframes portad-drift {
+  from {
+    transform: translate3d(-4%, -3%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(5%, 4%, 0) scale(1.12);
+  }
+}
+
+.animate-pulse-dot {
+  animation: portad-pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes portad-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee,
+  .animate-floaty,
+  .animate-floaty-slow,
+  .animate-drift,
+  .animate-pulse-dot {
+    animation: none;
+  }
 }

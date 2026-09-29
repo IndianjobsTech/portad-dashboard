@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
+import { LogoTile, Wordmark } from "@/components/logo";
 import {
   getStubSession,
   signInStub,
@@ -35,25 +36,28 @@ export default function SiteHeader() {
   );
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-black/80">
-      <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-4 px-4">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          Porta<span className="text-blue-600 dark:text-blue-400">D</span>
+    <header className="sticky top-0 z-40 border-b border-white/8 bg-space-900/75 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <Link href="/" className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70">
+          <LogoTile size={34} />
+          <Wordmark />
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm">
+        <nav className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1 text-sm md:flex">
           {LINKS.map((link) => {
             const active =
-              link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+              link.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={
-                  "rounded-md px-3 py-1.5 transition-colors " +
+                  "rounded-full px-3.5 py-1.5 transition-colors " +
                   (active
-                    ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                    : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50")
+                    ? "bg-white/10 text-white shadow-sm"
+                    : "text-frost-400 hover:text-frost-100")
                 }
               >
                 {link.label}
@@ -67,14 +71,14 @@ export default function SiteHeader() {
             <>
               <Link
                 href="/account"
-                className="hidden rounded-md border border-zinc-300 px-3 py-1.5 text-xs text-zinc-600 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-400 sm:block"
+                className="hidden rounded-full border border-white/10 px-3.5 py-1.5 text-xs text-frost-400 transition hover:border-white/25 hover:text-frost-100 sm:block"
               >
                 preview session
               </Link>
               <button
                 type="button"
                 onClick={() => signOutStub()}
-                className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="rounded-full border border-white/12 px-3.5 py-1.5 text-xs font-medium text-frost-200 transition hover:border-white/30 hover:text-white"
               >
                 Sign out
               </button>
@@ -83,7 +87,7 @@ export default function SiteHeader() {
             <button
               type="button"
               onClick={() => signInStub()}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+              className="btn-gradient rounded-full px-4 py-1.5 text-xs font-semibold text-white transition-all"
             >
               Sign in
             </button>

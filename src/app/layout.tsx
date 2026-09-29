@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import SiteFooter from "@/components/site-footer";
@@ -17,12 +17,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://porta-d.vercel.app"),
   title: {
-    default: "PortaD — data portability toolkit",
+    default: "PortaD — the open way to move your data",
     template: "%s · PortaD",
   },
   description:
-    "Local-first, open-source data portability and migration toolkit: export, validate, transform, and import SaaS workspaces.",
+    "Local-first, verifiable SaaS workspace migrations: export, validate, transform and import with checksums, resumable checkpoints and a round-trip diff.",
+  applicationName: "PortaD",
+  openGraph: {
+    type: "website",
+    siteName: "PortaD",
+    title: "PortaD — the open way to move your data",
+    description:
+      "Local-first, verifiable SaaS workspace migrations with checksums, resumable checkpoints and a round-trip diff.",
+    url: "https://porta-d.vercel.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PortaD — the open way to move your data",
+    description:
+      "Local-first, verifiable SaaS workspace migrations with a round-trip diff.",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#050d1f",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
