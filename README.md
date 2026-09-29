@@ -40,14 +40,35 @@ npm run lint
 npm run build
 ```
 
-Optional environment:
+## Environment
+
+Copy `.env.example` to `.env.local` and fill in what you need:
 
 ```bash
 NEXT_PUBLIC_API_URL=https://portad-production.up.railway.app
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
 ```
 
 If unset, the dashboard probes the hosted PortaD API health endpoint for the
 live status pill in the header and footer.
+
+## Authentication
+
+Sign-in is powered by **Firebase Auth** (email/password, GitHub, Google) when
+the `NEXT_PUBLIC_FIREBASE_*` web config is present. The Firebase web config is
+public by design — only admin/service-account keys stay server-side.
+
+- Signed-in users get a real **ID token**: the account page shows its expiry
+  and lets you copy it; API calls attach it as `Authorization: Bearer …`
+  (`authFetch` in `src/lib/auth.ts`).
+- Without Firebase config, the site falls back to a browser-local
+  **preview session** (no API access) so the UI stays demonstrable.
+
+Required Firebase console setup: enable Authentication → Sign-in method →
+Email/Password (and GitHub/Google OAuth apps if you want those buttons).
 
 ## Contributing
 

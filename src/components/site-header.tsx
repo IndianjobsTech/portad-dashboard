@@ -2,15 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore } from "react";
 
 import { LogoTile, Wordmark } from "@/components/logo";
-import {
-  getStubSession,
-  signInStub,
-  signOutStub,
-  subscribeSession,
-} from "@/lib/stub-auth";
+import { signOut, useAuth } from "@/lib/auth";
 
 const LINKS = [
   { href: "/", label: "Overview" },
@@ -19,21 +13,9 @@ const LINKS = [
   { href: "/compatibility", label: "Compatibility" },
 ];
 
-function signedInSnapshot(): boolean {
-  return getStubSession() !== null;
-}
-
-function serverSnapshot(): boolean {
-  return false;
-}
-
 export default function SiteHeader() {
   const pathname = usePathname();
-  const signedIn = useSyncExternalStore(
-    subscribeSession,
-    signedInSnapshot,
-    serverSnapshot,
-  );
+  const { ready, session } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-space-900/75 backdrop-blur-xl">
@@ -67,30 +49,35 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {signedIn ? (
+          {!ready ? (
+            <span
+              aria-hidden
+              className="h-7 w-16 animate-pulse rounded-full border border-white/10 bg-white/[0.04]"
+            />
+          ) : session ? (
             <>
               <Link
                 href="/account"
-                className="hidden rounded-full border border-white/10 px-3.5 py-1.5 text-xs text-frost-400 transition hover:border-white/25 hover:text-frost-100 sm:block"
+                title={session.email}
+                className="hidden max-w-[13rem] truncate rounded-full border border-white/10 px-3.5 py-1.5 text-xs text-frost-400 transition hover:border-white/25 hover:text-frost-100 sm:block"
               >
-                preview session
+                {session.email}
               </Link>
               <button
                 type="button"
-                onClick={() => signOutStub()}
+                onClick={() => void signOut()}
                 className="rounded-full border border-white/12 px-3.5 py-1.5 text-xs font-medium text-frost-200 transition hover:border-white/30 hover:text-white"
               >
                 Sign out
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={() => signInStub()}
+            <Link
+              href="/account"
               className="btn-gradient rounded-full px-4 py-1.5 text-xs font-semibold text-white transition-all"
             >
               Sign in
-            </button>
+            </Link>
           )}
         </div>
       </div>
