@@ -1,7 +1,20 @@
 {
-  "name": "web",
+  "name": "portad-dashboard",
   "version": "0.1.0",
   "private": true,
+  "description": "Public Next.js front-end for PortaD — the open, local-first way to move your data between SaaS workspaces.",
+  "license": "MIT",
+  "homepage": "https://portad.vishmuka.in",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IndianjobsTech/portad-dashboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IndianjobsTech/portad-dashboard/issues"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -31,7 +31,7 @@ application — no proprietary migration logic ships in this bundle.
 
 ## Develop
 
-Requires Node.js 20.9+ (22 LTS recommended).
+Requires Node.js 20.9+ (22 LTS recommended — `.nvmrc` pins 22).
 
 ```bash
 npm ci
@@ -39,6 +39,28 @@ npm run dev        # http://localhost:3000
 npm run lint
 npm run build
 ```
+
+## Project structure
+
+```text
+src/
+  app/          one folder per route + layout.tsx (site metadata, OG, canonical)
+  components/   UI sections — header, hero, terminal demo, process, footer …
+  lib/
+    config.ts   API + GitHub URLs
+    auth.ts     authFetch: attaches the Firebase ID token as a Bearer header
+    firebase.ts Firebase Auth wiring (optional, env-driven)
+public/         logos, icons, robots.txt, sitemap.xml
+.github/        CI workflow, issue and PR templates
+```
+
+## Deploy
+
+- Production: **<https://portad.vishmuka.in>**, served by Vercel (the domain is a
+  CNAME to `vercel-dns`).
+- Build command: `npm ci && npm run build`; publish from the `main` branch.
+- SEO: `public/robots.txt` points crawlers at `public/sitemap.xml`
+  (both served from the site root).
 
 ## Environment
 
@@ -69,6 +91,30 @@ public by design — only admin/service-account keys stay server-side.
 
 Required Firebase console setup: enable Authentication → Sign-in method →
 Email/Password (and GitHub/Google OAuth apps if you want those buttons).
+
+## Using the PortaD CLI
+
+This repository is only the front-end. Migrations run **locally** with the
+PortaD CLI (Python 3.12+ and [uv](https://docs.astral.sh/uv/)), from its
+source checkout:
+
+```bash
+uv sync
+uv tool install .                    # puts `portad` on PATH (or use `uv run portad …`)
+
+export NOTION_TOKEN="secret_..."     # Windows PowerShell: $env:NOTION_TOKEN = "secret_..."
+
+uv run portad providers              # which source/target adapters exist
+uv run portad export notion -o workspace.portad
+uv run portad validate workspace.portad
+uv run portad transform workspace.portad --target huly
+uv run portad import huly workspace.portad -o huly-workspace
+uv run portad verify workspace.portad --target huly -w huly-workspace
+uv run portad report workspace.portad --html report.html
+```
+
+Exit codes: `0` success · `1` validation/usage error · `2` not implemented yet.
+Run `portad --help` for the full command reference.
 
 ## Contributing
 
