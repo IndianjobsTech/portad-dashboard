@@ -36,7 +36,7 @@ body:
     id: environment
     attributes:
       label: Environment
-      placeholder: "e.g. Chrome 141 / Windows 11, porta-d.vercel.app"
+      placeholder: "e.g. Chrome 141 / Windows 11, portad.vishmuka.in"
     validations:
       required: true
   - type: textarea

@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/IndianjobsTech/portad-dashboard/security/advisories/new
     about: Report security issues privately — never in a public issue.
   - name: PortaD live dashboard
-    url: https://porta-d.vercel.app
+    url: https://portad.vishmuka.in
     about: See the deployed dashboard this repository builds.

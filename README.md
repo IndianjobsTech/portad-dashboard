@@ -3,14 +3,14 @@
 [![CI](https://github.com/IndianjobsTech/portad-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/IndianjobsTech/portad-dashboard/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-The public front-end for **[PortaD](https://porta-d.vercel.app)** — the open,
+The public front-end for **[PortaD](https://portad.vishmuka.in)** — the open,
 local-first way to move your data between SaaS workspaces.
 
 This repository contains the dashboard: the marketing site, the migration
 wizard, the compatibility matrix and the job views. It is a static Next.js
 application — no proprietary migration logic ships in this bundle.
 
-**Live:** [porta-d.vercel.app](https://porta-d.vercel.app)
+**Live:** [portad.vishmuka.in](https://portad.vishmuka.in)
 
 ## Stack
 

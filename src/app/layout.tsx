@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://porta-d.vercel.app"),
+  metadataBase: new URL("https://portad.vishmuka.in"),
   title: {
     default: "PortaD — the open way to move your data",
     template: "%s · PortaD",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "PortaD — the open way to move your data",
     description:
       "Local-first, verifiable SaaS workspace migrations with checksums, resumable checkpoints and a round-trip diff.",
-    url: "https://porta-d.vercel.app",
+    url: "https://portad.vishmuka.in",
   },
   twitter: {
     card: "summary_large_image",
