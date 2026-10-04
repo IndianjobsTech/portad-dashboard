@@ -76,7 +76,7 @@ cp .env.example .env.local
 ```
 
 ```env
-NEXT_PUBLIC_API_URL=https://portad-production.up.railway.app
+NEXT_PUBLIC_API_URL=
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
