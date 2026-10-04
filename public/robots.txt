@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://portad.vishmuka.in/sitemap.xml
