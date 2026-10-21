@@ -1,7 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export default function Reveal({
   children,
@@ -16,16 +15,66 @@ export default function Reveal({
   duration?: number;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+
+    if (
+      reduceMotion.matches ||
+      !("IntersectionObserver" in window)
+    ) {
+      element.style.opacity = "1";
+      element.style.transform = "translateY(0)";
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px 70px 0px" }
+    );
+
+    observer.observe(element);
+
+    const handleMotionChange = (event: MediaQueryListEvent) => {
+      if (event.matches) {
+        element.style.opacity = "1";
+        element.style.transform = "translateY(0)";
+        element.style.transition = "none";
+        observer.disconnect();
+      }
+    };
+
+    reduceMotion.addEventListener("change", handleMotionChange);
+
+    return () => {
+      observer.disconnect();
+      reduceMotion.removeEventListener("change", handleMotionChange);
+    };
+  }, []);
+
   return (
-    <motion.div
+    <div
+      ref={ref}
       className={className}
-      initial={reduce ? { opacity: 1 } : { opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-70px" }}
-      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : `translateY(${y}px)`,
+        transition: `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
