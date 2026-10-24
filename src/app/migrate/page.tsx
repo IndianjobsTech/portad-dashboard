@@ -86,13 +86,20 @@ export default function Migrate() {
             animate={{ width: `${progress}%` }}
             transition={{ duration: reduce ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
           />
-          <ol className="relative flex justify-between">
+          <ol
+            className="relative flex justify-between"
+            aria-label="Migration progress"
+          >
             {STEP_LABELS.map((label, index) => {
               const state =
                 index < step ? "done" : index === step ? "current" : "todo";
               return (
-                <li key={label} className="flex flex-col items-center gap-2">
+                <li
+                  key={label}
+                  className="flex flex-col items-center gap-2"
+                >
                   <span
+                    aria-hidden="true"
                     className={
                       "flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ring-4 ring-space-900 transition-colors " +
                       (state === "current"
@@ -105,6 +112,7 @@ export default function Migrate() {
                     {state === "done" ? "✓" : index + 1}
                   </span>
                   <span
+                    aria-current={state === "current" ? "step" : undefined}
                     className={
                       "text-xs font-medium " +
                       (state === "todo" ? "text-frost-600" : "text-frost-200")
