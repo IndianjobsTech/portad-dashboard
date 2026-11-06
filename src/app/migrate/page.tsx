@@ -8,15 +8,35 @@ type Step = 0 | 1 | 2 | 3;
 const STEP_LABELS = ["Source", "Target", "Package", "Run"] as const;
 
 const SOURCES = [
-  { id: "notion", name: "Notion", detail: "Pages, databases, attachments", ready: true },
-  { id: "fixtures", name: "Fixtures demo", detail: "Synthetic workspace, no account needed", ready: true },
+  {
+    id: "notion",
+    name: "Notion",
+    detail: "Pages, databases, attachments",
+    ready: true,
+  },
+  {
+    id: "fixtures",
+    name: "Fixtures demo",
+    detail: "Synthetic workspace, no account needed",
+    ready: true,
+  },
   { id: "trello", name: "Trello", detail: "Planned (0.3)", ready: false },
   { id: "clickup", name: "ClickUp", detail: "Planned (0.4)", ready: false },
 ];
 
 const TARGETS = [
-  { id: "huly", name: "Huly", detail: "Unified Import Format workspace", ready: true },
-  { id: "notion", name: "Notion", detail: "Round-trip import planned", ready: false },
+  {
+    id: "huly",
+    name: "Huly",
+    detail: "Unified Import Format workspace",
+    ready: true,
+  },
+  {
+    id: "notion",
+    name: "Notion",
+    detail: "Round-trip import planned",
+    ready: false,
+  },
 ];
 
 const CLI_RUN = [
@@ -27,14 +47,39 @@ const CLI_RUN = [
 
 const TREE = [
   { depth: 0, name: "notion.portad/", kind: "dir" as const },
-  { depth: 1, name: "manifest.json", kind: "file" as const, meta: "checksums · 12 KB" },
-  { depth: 1, name: "report.json", kind: "file" as const, meta: "mapping decisions" },
+  {
+    depth: 1,
+    name: "manifest.json",
+    kind: "file" as const,
+    meta: "checksums · 12 KB",
+  },
+  {
+    depth: 1,
+    name: "report.json",
+    kind: "file" as const,
+    meta: "mapping decisions",
+  },
   { depth: 1, name: "data/", kind: "dir" as const },
   { depth: 2, name: "pages.json", kind: "file" as const, meta: "842 records" },
-  { depth: 2, name: "databases.json", kind: "file" as const, meta: "6 databases" },
-  { depth: 2, name: "comments.json", kind: "file" as const, meta: "431 threads" },
+  {
+    depth: 2,
+    name: "databases.json",
+    kind: "file" as const,
+    meta: "6 databases",
+  },
+  {
+    depth: 2,
+    name: "comments.json",
+    kind: "file" as const,
+    meta: "431 threads",
+  },
   { depth: 1, name: "attachments/", kind: "dir" as const },
-  { depth: 2, name: "12 files", kind: "file" as const, meta: "84.2 MB · sha256 ✓" },
+  {
+    depth: 2,
+    name: "12 files",
+    kind: "file" as const,
+    meta: "84.2 MB · sha256 ✓",
+  },
 ];
 
 export default function Migrate() {
@@ -43,11 +88,12 @@ export default function Migrate() {
   const [source, setSource] = useState<string | null>(null);
   const [target, setTarget] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const canAdvance =
     (step === 0 && source !== null) ||
     (step === 1 && target !== null) ||
-    (step === 2 && fileName !== null);
+    (step === 2 && selectedFile !== null);
 
   const progress = (step / (STEP_LABELS.length - 1)) * 100;
 
@@ -68,8 +114,8 @@ export default function Migrate() {
         Four steps, zero surprises
       </h1>
       <p className="mt-3 max-w-xl leading-7 text-frost-400">
-        Hosted execution is not enabled yet — each step mirrors the CLI flow it will
-        one day run for you.
+        Hosted execution is not enabled yet — each step mirrors the CLI flow it
+        will one day run for you.
       </p>
 
       {/* Stepper */}
@@ -94,10 +140,7 @@ export default function Migrate() {
               const state =
                 index < step ? "done" : index === step ? "current" : "todo";
               return (
-                <li
-                  key={label}
-                  className="flex flex-col items-center gap-2"
-                >
+                <li key={label} className="flex flex-col items-center gap-2">
                   <span
                     className={
                       "relative flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ring-4 ring-white dark:ring-space-900 transition-colors " +
@@ -108,20 +151,26 @@ export default function Migrate() {
                           : "border border-slate-200 bg-white text-slate-400 dark:border-white/15 dark:bg-space-850 dark:text-frost-500")
                     }
                   >
-                  <span aria-hidden="true">{state === "done" ? "✓" : index + 1}</span>
+                    <span aria-hidden="true">
+                      {state === "done" ? "✓" : index + 1}
+                    </span>
                     <span className="sr-only">
                       {state === "done"
                         ? `Step ${index + 1} completed`
                         : state === "current"
-                        ? `Step ${index + 1}, current step`
-                        : `Step ${index + 1}, upcoming`}
-                      </span>
+                          ? `Step ${index + 1}, current step`
+                          : `Step ${index + 1}, upcoming`}
                     </span>
+                  </span>
                   <span
                     aria-current={state === "current" ? "step" : undefined}
                     className={
                       "text-xs font-medium " +
-                      (state === "todo" ? "text-slate-400 dark:text-frost-600" : state === "current" ? "text-brand-600 font-semibold dark:text-frost-100" : "text-slate-700 dark:text-frost-200")
+                      (state === "todo"
+                        ? "text-slate-400 dark:text-frost-600"
+                        : state === "current"
+                          ? "text-brand-600 font-semibold dark:text-frost-100"
+                          : "text-slate-700 dark:text-frost-200")
                     }
                   >
                     {label}
@@ -139,21 +188,37 @@ export default function Migrate() {
           <motion.div
             key={step}
             {...slide}
-            transition={{ duration: reduce ? 0.15 : 0.3, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: reduce ? 0.15 : 0.3,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
             {step === 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-frost-50">Choose a source</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-frost-50">
+                  Choose a source
+                </h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-frost-500">
                   Where the workspace lives today.
                 </p>
+                {!source && (
+                  <p
+                    className="mt-2 text-sm text-amber-600 dark:text-amber-400"
+                    role="status"
+                  >
+                    Please select a source to continue.
+                  </p>
+                )}
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {SOURCES.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       disabled={!item.ready}
-                      onClick={() => setSource(item.id)}
+                      onClick={() => {
+                        setSource(item.id);
+                        setValidationError(null);
+                      }}
                       className={
                         "rounded-2xl border p-4 text-left transition duration-200 disabled:cursor-not-allowed disabled:opacity-45 " +
                         (source === item.id
@@ -162,7 +227,9 @@ export default function Migrate() {
                       }
                     >
                       <span className="flex items-center justify-between">
-                        <span className="font-medium text-slate-900 dark:text-frost-100">{item.name}</span>
+                        <span className="font-medium text-slate-900 dark:text-frost-100">
+                          {item.name}
+                        </span>
                         {!item.ready && (
                           <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-transparent dark:text-frost-600">
                             planned
@@ -180,17 +247,30 @@ export default function Migrate() {
 
             {step === 1 && (
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-frost-50">Choose a target</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-frost-50">
+                  Choose a target
+                </h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-frost-500">
                   Where the workspace should land.
                 </p>
+                {!target && (
+                  <p
+                    className="mt-2 text-sm text-amber-600 dark:text-amber-400"
+                    role="status"
+                  >
+                    Please select a target to continue.
+                  </p>
+                )}
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {TARGETS.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       disabled={!item.ready}
-                      onClick={() => setTarget(item.id)}
+                      onClick={() => {
+                        setTarget(item.id);
+                        setValidationError(null);
+                      }}
                       className={
                         "rounded-2xl border p-4 text-left transition duration-200 disabled:cursor-not-allowed disabled:opacity-45 " +
                         (target === item.id
@@ -199,7 +279,9 @@ export default function Migrate() {
                       }
                     >
                       <span className="flex items-center justify-between">
-                        <span className="font-medium text-slate-900 dark:text-frost-100">{item.name}</span>
+                        <span className="font-medium text-slate-900 dark:text-frost-100">
+                          {item.name}
+                        </span>
                         {!item.ready && (
                           <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-transparent dark:text-frost-600">
                             planned
@@ -217,19 +299,52 @@ export default function Migrate() {
 
             {step === 2 && (
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-frost-50">Attach a package</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-frost-50">
+                  Attach a package
+                </h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-frost-500">
-                  Have a <code className="font-mono text-brand-600 dark:text-brand-300">.portad</code>{" "}
+                  Have a{" "}
+                  <code className="font-mono text-brand-600 dark:text-brand-300">
+                    .portad
+                  </code>{" "}
                   package already? Attach it here — files never leave this page.
                 </p>
+                {!fileName && !validationError && (
+                  <p
+                    className="mt-2 text-sm text-amber-600 dark:text-amber-400"
+                    role="status"
+                  >
+                    Please choose a .zip or .portad file to continue.
+                  </p>
+                )}
                 <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 px-6 py-10 text-center transition hover:border-brand-400 hover:bg-brand-50/40 dark:border-white/20 dark:bg-transparent dark:hover:border-brand-400/60 dark:hover:bg-brand-500/5">
                   <input
                     type="file"
                     accept=".zip,.portad"
+                    id="package-file"
+                    aria-invalid={validationError !== null}
+                    aria-describedby={
+                      validationError ? "package-file-error" : undefined
+                    }
                     className="sr-only"
                     onChange={(event) => {
                       const file = event.target.files?.[0];
-                      setFileName(file ? file.name : null);
+
+                      if (!file) return;
+
+                      const isValidFile = /\.(zip|portad)$/i.test(file.name);
+
+                      if (!isValidFile) {
+                        setValidationError(
+                          "Invalid file. Please choose a .zip or .portad file.",
+                        );
+                        event.target.value = "";
+                        return;
+                      }
+
+                      setSelectedFile(file);
+                      setFileName(file.name);
+                      setValidationError(null);
                     }}
                   />
                   <span className="text-sm font-medium text-slate-800 dark:text-frost-100">
@@ -239,12 +354,24 @@ export default function Migrate() {
                     or run portad export to create one
                   </span>
                 </label>
-
+                {validationError && (
+                  <p
+                    id="package-file-error"
+                    role="alert"
+                    className="mt-3 text-sm font-medium text-red-600 dark:text-red-400"
+                  >
+                    {validationError}
+                  </p>
+                )}
                 <AnimatePresence>
                   {fileName && (
                     <motion.div
-                      initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
-                      animate={reduce ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+                      initial={
+                        reduce ? { opacity: 0 } : { opacity: 0, height: 0 }
+                      }
+                      animate={
+                        reduce ? { opacity: 1 } : { opacity: 1, height: "auto" }
+                      }
                       exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
@@ -289,15 +416,17 @@ export default function Migrate() {
                   Run the migration
                 </h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-frost-500">
-                  Hosted runs are queued for the hosted plane. Until then, the exact
-                  pipeline runs locally:
+                  Hosted runs are queued for the hosted plane. Until then, the
+                  exact pipeline runs locally:
                 </p>
                 <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 dark:border-white/10 dark:bg-space-950">
                   <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-2.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-                    <span className="ml-2 text-[11px] text-frost-500">terminal</span>
+                    <span className="ml-2 text-[11px] text-frost-500">
+                      terminal
+                    </span>
                   </div>
                   <div className="p-4 font-mono text-sm leading-7 text-frost-300">
                     {CLI_RUN.map((cmd) => (
@@ -310,8 +439,8 @@ export default function Migrate() {
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-sm font-medium text-amber-700 dark:text-amber-300/90">
                   <span aria-hidden>⚠</span>
-                  Hosted execution not enabled yet — the button below is intentionally
-                  disabled.
+                  Hosted execution not enabled yet — the button below is
+                  intentionally disabled.
                 </p>
                 <button
                   type="button"

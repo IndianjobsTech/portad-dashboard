@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, afterEach, vi } from "vitest";
 import React from "react";
 import Migrate from "./page";
@@ -104,9 +110,7 @@ describe("Migrate wizard", () => {
 
     it("allows selecting Fixtures demo as a source", () => {
       render(<Migrate />);
-      fireEvent.click(
-        screen.getByRole("button", { name: /fixtures demo/i }),
-      );
+      fireEvent.click(screen.getByRole("button", { name: /fixtures demo/i }));
       expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
     });
 
@@ -185,9 +189,7 @@ describe("Migrate wizard", () => {
       expect(
         screen.getByText("Unified Import Format workspace"),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText("Round-trip import planned"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Round-trip import planned")).toBeInTheDocument();
     });
   });
 
@@ -214,9 +216,7 @@ describe("Migrate wizard", () => {
 
     it("disables Continue until a file is attached", () => {
       advanceToStep(2);
-      expect(
-        screen.getByRole("button", { name: "Continue" }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
     });
 
     it("shows default upload prompt text", () => {
@@ -241,9 +241,7 @@ describe("Migrate wizard", () => {
       fireEvent.change(fileInput, { target: { files: [file] } });
 
       expect(screen.getByText("workspace.portad")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Continue" }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
     });
 
     it("shows a package preview tree after file upload", () => {
@@ -274,6 +272,53 @@ describe("Migrate wizard", () => {
         'input[type="file"]',
       ) as HTMLInputElement;
       expect(fileInput.accept).toBe(".zip,.portad");
+    });
+    it("preserves the previous valid file when an invalid file is selected", () => {
+      advanceToStep(2);
+
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+
+      const validFile = new File(["payload"], "sample.zip", {
+        type: "application/zip",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+
+      const invalidFile = new File(["payload"], "sample.txt", {
+        type: "text/plain",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [invalidFile] } });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid file. Please choose a .zip or .portad file.",
+      );
+      expect(screen.getByText("sample.zip")).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    });
+    it("rejects files with unsupported extensions", () => {
+      advanceToStep(2);
+
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+
+      const file = new File(["payload"], "sample.txt", {
+        type: "text/plain",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [file] } });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid file. Please choose a .zip or .portad file.",
+      );
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
     });
 
     it("can go back from the Package step to the Target step", () => {
@@ -311,9 +356,7 @@ describe("Migrate wizard", () => {
     it("shows the hosted execution warning message", () => {
       advanceToStep(3);
       expect(
-        screen.getByText(
-          /hosted execution not enabled yet/i,
-        ),
+        screen.getByText(/hosted execution not enabled yet/i),
       ).toBeInTheDocument();
     });
 
@@ -390,9 +433,7 @@ describe("Migrate wizard", () => {
     it("renders the CLI info description", () => {
       render(<Migrate />);
       expect(
-        screen.getByText(
-          /hosted execution is not enabled yet/i,
-        ),
+        screen.getByText(/hosted execution is not enabled yet/i),
       ).toBeInTheDocument();
     });
   });

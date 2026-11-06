@@ -26,13 +26,9 @@ test.describe("Migration wizard", () => {
   test("does not allow selecting a source that is only planned", async ({
     page,
   }) => {
-    await expect(
-      page.getByRole("button", { name: /Trello/ }),
-    ).toBeDisabled();
+    await expect(page.getByRole("button", { name: /Trello/ })).toBeDisabled();
 
-    await expect(
-      page.getByRole("button", { name: /ClickUp/ }),
-    ).toBeDisabled();
+    await expect(page.getByRole("button", { name: /ClickUp/ })).toBeDisabled();
 
     await expect(
       page.getByRole("button", { name: /Fixtures demo/ }),
@@ -43,9 +39,7 @@ test.describe("Migration wizard", () => {
     page,
   }) => {
     await page.getByRole("button", { name: /Fixtures demo/ }).click();
-    await page
-      .getByRole("button", { name: "Next", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await expect(
       page.getByRole("heading", { name: "Choose a target" }),
@@ -57,9 +51,7 @@ test.describe("Migration wizard", () => {
     ).toBeDisabled();
 
     await page.getByRole("button", { name: /^Huly/ }).click();
-    await page
-      .getByRole("button", { name: "Next", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await expect(
       page.getByRole("heading", { name: "Attach a package" }),
@@ -81,22 +73,16 @@ test.describe("Migration wizard", () => {
     page,
   }) => {
     await page.getByRole("button", { name: /Fixtures demo/ }).click();
-    await page
-      .getByRole("button", { name: "Next", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await page.getByRole("button", { name: /^Huly/ }).click();
-    await page
-      .getByRole("button", { name: "Next", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await expect(
       page.getByRole("heading", { name: "Attach a package" }),
     ).toBeVisible();
 
-    await expect(
-      page.getByRole("button", { name: "Continue" }),
-    ).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled();
 
     await page.locator('input[type="file"]').setInputFiles({
       name: "sample.portad",
@@ -107,9 +93,7 @@ test.describe("Migration wizard", () => {
       page.getByText("sample.portad", { exact: true }),
     ).toBeVisible();
 
-    await expect(
-      page.getByRole("button", { name: "Continue" }),
-    ).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Continue" })).toBeEnabled();
 
     await page.getByRole("button", { name: "Continue" }).click();
 
@@ -118,16 +102,31 @@ test.describe("Migration wizard", () => {
     ).toBeVisible();
     await expect(page.getByText("step 4 / 4")).toBeVisible();
   });
-  test("keeps hosted migration disabled", async ({ page }) => {
+  test("rejects files with unsupported extensions", async ({ page }) => {
     await page.getByRole("button", { name: /Fixtures demo/ }).click();
-    await page
-      .getByRole("button", { name: "Next", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await page.getByRole("button", { name: /^Huly/ }).click();
-    await page
-      .getByRole("button", { name: "Next", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "sample.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("Invalid test file"),
+    });
+
+    await expect(page.locator('p[role="alert"]')).toHaveText(
+      "Invalid file. Please choose a .zip or .portad file.",
+    );
+
+    await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled();
+  });
+  test("keeps hosted migration disabled", async ({ page }) => {
+    await page.getByRole("button", { name: /Fixtures demo/ }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+
+    await page.getByRole("button", { name: /^Huly/ }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await page.locator('input[type="file"]').setInputFiles({
       name: "sample.portad",
