@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, afterEach, vi } from "vitest";
 import React from "react";
 import Migrate from "./page";
@@ -89,6 +95,17 @@ describe("Migrate wizard", () => {
       render(<Migrate />);
       expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     });
+    it("shows a validation message when no source is selected", () => {
+      render(<Migrate />);
+
+      expect(
+        screen.getByText(
+          "A source platform is required to proceed to the target step.",
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+    });
 
     it("keeps planned sources disabled and unselectable", () => {
       render(<Migrate />);
@@ -104,9 +121,7 @@ describe("Migrate wizard", () => {
 
     it("allows selecting Fixtures demo as a source", () => {
       render(<Migrate />);
-      fireEvent.click(
-        screen.getByRole("button", { name: /fixtures demo/i }),
-      );
+      fireEvent.click(screen.getByRole("button", { name: /fixtures demo/i }));
       expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
     });
 
@@ -151,6 +166,21 @@ describe("Migrate wizard", () => {
       expect(screen.getByText("step 1 / 4")).toBeInTheDocument();
     });
 
+    it("shows a validation message when no target is selected", () => {
+      render(<Migrate />);
+
+      fireEvent.click(screen.getByRole("button", { name: /notion/i }));
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+      expect(
+        screen.getByText(
+          "A destination platform is required to proceed to package upload.",
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+    });
+
     it("disables Next on the Target step until a target is selected", () => {
       render(<Migrate />);
       fireEvent.click(screen.getByRole("button", { name: /notion/i }));
@@ -185,9 +215,7 @@ describe("Migrate wizard", () => {
       expect(
         screen.getByText("Unified Import Format workspace"),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText("Round-trip import planned"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Round-trip import planned")).toBeInTheDocument();
     });
   });
 
@@ -214,15 +242,25 @@ describe("Migrate wizard", () => {
 
     it("disables Continue until a file is attached", () => {
       advanceToStep(2);
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    });
+
+    it("shows a validation message when no package is selected", () => {
+      advanceToStep(2);
+
       expect(
-        screen.getByRole("button", { name: "Continue" }),
-      ).toBeDisabled();
+        screen.getByText(
+          "A .portad or .zip package archive is required to advance.",
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
     });
 
     it("shows default upload prompt text", () => {
       advanceToStep(2);
       expect(
-        screen.getByText("Click to choose a .portad package"),
+        screen.getByText("Click to choose a .zip or .portad package."),
       ).toBeInTheDocument();
       expect(
         screen.getByText(/or run portad export to create one/i),
@@ -241,9 +279,7 @@ describe("Migrate wizard", () => {
       fireEvent.change(fileInput, { target: { files: [file] } });
 
       expect(screen.getByText("workspace.portad")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Continue" }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
     });
 
     it("shows a package preview tree after file upload", () => {
@@ -274,6 +310,61 @@ describe("Migrate wizard", () => {
         'input[type="file"]',
       ) as HTMLInputElement;
       expect(fileInput.accept).toBe(".zip,.portad");
+      const validFile = new File(["payload"], "sample.zip", {
+        type: "application/zip",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    });
+
+    it("preserves the previous valid file when an invalid file is selected", () => {
+      advanceToStep(2);
+
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+
+      const validFile = new File(["payload"], "sample.zip", {
+        type: "application/zip",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+
+      const invalidFile = new File(["payload"], "sample.txt", {
+        type: "text/plain",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [invalidFile] } });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid file type. Please upload a valid .portad or .zip package archive.",
+      );
+      expect(screen.getByText("sample.zip")).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    });
+    it("rejects files with unsupported extensions", () => {
+      advanceToStep(2);
+
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+
+      const file = new File(["payload"], "sample.txt", {
+        type: "text/plain",
+      });
+
+      fireEvent.change(fileInput, { target: { files: [file] } });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid file type. Please upload a valid .portad or .zip package archive.",
+      );
+
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
     });
 
     it("can go back from the Package step to the Target step", () => {
@@ -311,9 +402,7 @@ describe("Migrate wizard", () => {
     it("shows the hosted execution warning message", () => {
       advanceToStep(3);
       expect(
-        screen.getByText(
-          /hosted execution not enabled yet/i,
-        ),
+        screen.getByText(/hosted execution not enabled yet/i),
       ).toBeInTheDocument();
     });
 
@@ -390,9 +479,7 @@ describe("Migrate wizard", () => {
     it("renders the CLI info description", () => {
       render(<Migrate />);
       expect(
-        screen.getByText(
-          /hosted execution is not enabled yet/i,
-        ),
+        screen.getByText(/hosted execution is not enabled yet/i),
       ).toBeInTheDocument();
     });
   });
@@ -478,8 +565,12 @@ describe("Migrate wizard", () => {
     it("displays an accessible error message and blocks advancement when an invalid file is uploaded", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/choose a \.portad package/i);
-      const invalidFile = new File(["fake content"], "malicious.exe", { type: "application/x-msdownload" });
+      const fileInput = screen.getByLabelText(
+        /choose a \.zip or \.portad package/i,
+      );
+      const invalidFile = new File(["fake content"], "malicious.exe", {
+        type: "application/x-msdownload",
+      });
 
       fireEvent.change(fileInput, { target: { files: [invalidFile] } });
 
@@ -492,14 +583,20 @@ describe("Migrate wizard", () => {
       expect(continueButton).toBeDisabled();
 
       // Tree preview should NOT be rendered
-      expect(screen.queryByText(/preview · malicious\.exe/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/preview · malicious\.exe/i),
+      ).not.toBeInTheDocument();
     });
 
     it("allows advancement and renders preview when a valid .portad package is uploaded", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/choose a \.portad package/i);
-      const validFile = new File(["valid content"], "workspace.portad", { type: "application/zip" });
+      const fileInput = screen.getByLabelText(
+        /choose a \.zip or \.portad package/i,
+      );
+      const validFile = new File(["valid content"], "workspace.portad", {
+        type: "application/zip",
+      });
 
       fireEvent.change(fileInput, { target: { files: [validFile] } });
 
@@ -511,14 +608,20 @@ describe("Migrate wizard", () => {
       expect(continueButton).not.toBeDisabled();
 
       // Tree preview is rendered
-      expect(screen.getByText(/preview · workspace\.portad/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/preview · workspace\.portad/i),
+      ).toBeInTheDocument();
     });
 
     it("displays a warning status when a large package (>250MB) is attached", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/choose a \.portad package/i);
-      const largeFile = new File(["large"], "giant_workspace.zip", { type: "application/zip" });
+      const fileInput = screen.getByLabelText(
+        /choose a \.zip or \.portad package/i,
+      );
+      const largeFile = new File(["large"], "giant_workspace.zip", {
+        type: "application/zip",
+      });
       Object.defineProperty(largeFile, "size", { value: 300 * 1024 * 1024 });
 
       fireEvent.change(fileInput, { target: { files: [largeFile] } });
@@ -537,7 +640,9 @@ describe("Migrate wizard", () => {
 
       // Initial state: hint is visible explaining source requirement
       expect(
-        screen.getByText(/a source platform is required to proceed to the target step/i),
+        screen.getByText(
+          /a source platform is required to proceed to the target step/i,
+        ),
       ).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
 
@@ -546,7 +651,9 @@ describe("Migrate wizard", () => {
 
       // Requirement hint is cleared
       expect(
-        screen.queryByText(/a source platform is required to proceed to the target step/i),
+        screen.queryByText(
+          /a source platform is required to proceed to the target step/i,
+        ),
       ).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Next" })).not.toBeDisabled();
     });
@@ -556,7 +663,9 @@ describe("Migrate wizard", () => {
 
       // Initial step 1 state: hint is visible explaining target requirement
       expect(
-        screen.getByText(/a destination platform is required to proceed to package upload/i),
+        screen.getByText(
+          /a destination platform is required to proceed to package upload/i,
+        ),
       ).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
 
@@ -565,7 +674,9 @@ describe("Migrate wizard", () => {
 
       // Requirement hint is cleared
       expect(
-        screen.queryByText(/a destination platform is required to proceed to package upload/i),
+        screen.queryByText(
+          /a destination platform is required to proceed to package upload/i,
+        ),
       ).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Next" })).not.toBeDisabled();
     });
@@ -573,8 +684,12 @@ describe("Migrate wizard", () => {
     it("clears file errors when correcting an invalid file upload with a valid one", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/choose a \.portad package/i);
-      const invalidFile = new File(["bad"], "document.pdf", { type: "application/pdf" });
+      const fileInput = screen.getByLabelText(
+        /choose a \.zip or \.portad package/i,
+      );
+      const invalidFile = new File(["bad"], "document.pdf", {
+        type: "application/pdf",
+      });
 
       // Upload invalid file
       fireEvent.change(fileInput, { target: { files: [invalidFile] } });
@@ -582,12 +697,16 @@ describe("Migrate wizard", () => {
       expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
 
       // Correct by uploading valid file
-      const validFile = new File(["good"], "backup.portad", { type: "application/zip" });
+      const validFile = new File(["good"], "backup.portad", {
+        type: "application/zip",
+      });
       fireEvent.change(fileInput, { target: { files: [validFile] } });
 
       // Error message is removed and Continue is enabled
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Continue" })).not.toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: "Continue" }),
+      ).not.toBeDisabled();
     });
 
     it("preserves previously selected source and target when navigating back from step 2", () => {
@@ -606,21 +725,36 @@ describe("Migrate wizard", () => {
 
     it("associates source control group fieldset with requirement hint when unselected", () => {
       render(<Migrate />);
-      const fieldset = screen.getByRole("group", { name: /source platform choices/i });
-      expect(fieldset).toHaveAttribute("aria-describedby", "source-requirement-hint");
+      const fieldset = screen.getByRole("group", {
+        name: /source platform choices/i,
+      });
+      expect(fieldset).toHaveAttribute(
+        "aria-describedby",
+        "source-requirement-hint",
+      );
     });
 
     it("associates destination control group fieldset with requirement hint when unselected", () => {
       advanceToStep(1);
-      const fieldset = screen.getByRole("group", { name: /destination platform choices/i });
-      expect(fieldset).toHaveAttribute("aria-describedby", "target-requirement-hint");
+      const fieldset = screen.getByRole("group", {
+        name: /destination platform choices/i,
+      });
+      expect(fieldset).toHaveAttribute(
+        "aria-describedby",
+        "target-requirement-hint",
+      );
     });
 
     it("associates empty-package requirement hint with file input via aria-describedby and displays hint", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/choose a \.portad package/i);
-      expect(fileInput).toHaveAttribute("aria-describedby", "file-requirement-hint");
+      const fileInput = screen.getByLabelText(
+        /choose a \.zip or \.portad package/i,
+      );
+      expect(fileInput).toHaveAttribute(
+        "aria-describedby",
+        "file-requirement-hint",
+      );
 
       const requirementHint = screen.getByText(
         /a \.portad or \.zip package archive is required to advance/i,
@@ -640,7 +774,11 @@ describe("Migrate wizard", () => {
       // Alert dialog is displayed
       const dialog = screen.getByRole("alertdialog");
       expect(dialog).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: /discard migration in progress\?/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", {
+          name: /discard migration in progress\?/i,
+        }),
+      ).toBeInTheDocument();
 
       // Click "Keep editing"
       fireEvent.click(screen.getByRole("button", { name: "Keep editing" }));
@@ -659,7 +797,9 @@ describe("Migrate wizard", () => {
       fireEvent.click(discardButton);
 
       // Click "Discard and restart"
-      const confirmButton = screen.getByRole("button", { name: "Discard and restart" });
+      const confirmButton = screen.getByRole("button", {
+        name: "Discard and restart",
+      });
       fireEvent.click(confirmButton);
 
       // Reset to Step 0 with source requirement hint visible
@@ -675,21 +815,33 @@ describe("Migrate wizard", () => {
     it("rejects empty 0-byte package files and keeps Continue disabled", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/click to choose a \.portad package/i);
-      const emptyFile = new File([], "empty.portad", { type: "application/zip" });
+      const fileInput = screen.getByLabelText(
+        /click to choose a \.zip or \.portad package/i,
+      );
+      const emptyFile = new File([], "empty.portad", {
+        type: "application/zip",
+      });
 
       fireEvent.change(fileInput, { target: { files: [emptyFile] } });
 
-      expect(screen.getByRole("alert")).toHaveTextContent(/selected package file is empty/i);
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        /selected package file is empty/i,
+      );
       expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
-      expect(screen.queryByText(/preview · empty\.portad/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/preview · empty\.portad/i),
+      ).not.toBeInTheDocument();
     });
 
     it("resets valid progression immediately when a valid file is replaced with an invalid file", () => {
       advanceToStep(2);
 
-      const fileInput = screen.getByLabelText(/click to choose a \.portad package/i);
-      const validFile = new File(["payload"], "good.portad", { type: "application/zip" });
+      const fileInput = screen.getByLabelText(
+        /click to choose a \.zip or \.portad package/i,
+      );
+      const validFile = new File(["payload"], "good.portad", {
+        type: "application/zip",
+      });
       const badFile = new File(["bad"], "notes.txt", { type: "text/plain" });
 
       fireEvent.change(fileInput, { target: { files: [validFile] } });
