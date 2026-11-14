@@ -37,7 +37,19 @@ Each issue should include the problem and user impact, scope and non-goals, numb
 Do not claim a check passed unless it was actually run. Include command output or CI links for non-obvious failures.
 
 ## CI and dependencies
-CI currently runs install, lint, and build. Consider adding npm test to CI after verifying the suite is stable. Review dependency updates for changelog, compatibility, security impact, and lockfile consistency. Overrides must have an owner, justification, and revisit date.
+
+The GitHub Actions workflow (`.github/workflows/ci.yml`) runs on pushes to `main` and pull requests.
+
+The workflow uses Node.js 22 and performs the following checks:
+
+1. Install dependencies using `npm ci`.
+2. Install Playwright Chromium.
+3. Run unit tests using `npm test`.
+4. Run ESLint using `npm run lint`.
+5. Generate the production build using `npm run build`.
+6. Run end-to-end tests using `npm run test:e2e`.
+
+Review dependency updates for changelog, compatibility, security impact, and lockfile consistency. Overrides must have an owner, justification, and revisit date.
 
 ## Release readiness
 Before a release, verify acceptance criteria; review high/critical security findings; run tests, lint, build, and critical journey checks; verify docs and compatibility statements; prepare release notes with known limitations; and understand rollback/disablement for backend-connected features.
