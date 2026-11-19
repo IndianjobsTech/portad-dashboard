@@ -11,7 +11,8 @@ export default defineConfig({
     exclude: [
       "**/node_modules/**",
       "**/dist/**",
-      "tests/e2e/**",
+      "**/portad-dashboard/**",
+      "**/tests/e2e/**",
     ],
   },
   resolve: {
