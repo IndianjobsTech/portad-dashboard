@@ -12,7 +12,7 @@ The migration wizard contains four steps:
 
 1. **Source** — Select the platform from which data would be migrated. The wizard currently lists Notion and Fixtures demo as ready options. Trello and ClickUp are marked as planned.
 2. **Target** — Select the destination platform. Huly is marked as ready, while Notion round-trip import is planned.
-3. **Package** — The interface provides file selection for `.zip` and `.portad` files and displays an illustrative package structure.
+3. **Package** — The interface accepts .zip and .portad files and displays an illustrative package structure. Files with unsupported extensions are rejected with a clear validation message. Users must select a valid package before continuing to the Run step. Validation checks the file extension only; it does not verify the package contents.
 4. **Run** — The interface displays an example command sequence for the migration workflow. Hosted execution is not enabled, and the wizard does not currently run these commands.
 
 The wizard also provides navigation between steps.
