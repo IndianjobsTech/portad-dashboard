@@ -22,7 +22,7 @@ const TARGETS = [
 const CLI_RUN = [
   "portad export notion",
   "portad transform --target huly",
-  "portad import huly --resume",
+  "portad import huly workspace.portad --resume",
 ];
 
 const TREE = [
@@ -48,6 +48,11 @@ export default function Migrate() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileWarning, setFileWarning] = useState<string | null>(null);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [statusAnnouncement, setStatusAnnouncement] = useState<string | null>(null);
+
+  const hasActiveProgress =
+    source !== null || target !== null || fileName !== null || step > 0;
 
   const canAdvance =
     (step === 0 && source !== null) ||
@@ -56,10 +61,23 @@ export default function Migrate() {
 
   const handleSelectSource = (id: string) => {
     setSource(id);
+    setStatusAnnouncement(null);
   };
 
   const handleSelectTarget = (id: string) => {
     setTarget(id);
+    setStatusAnnouncement(null);
+  };
+
+  const handleDiscard = () => {
+    setSource(null);
+    setTarget(null);
+    setFileName(null);
+    setFileError(null);
+    setFileWarning(null);
+    setStep(0);
+    setShowDiscardDialog(false);
+    setStatusAnnouncement("Migration configuration discarded and reset.");
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +95,13 @@ export default function Migrate() {
     if (!hasValidExt) {
       setFileName(file.name);
       setFileError("Invalid file type. Please upload a valid .portad or .zip package archive.");
+      setFileWarning(null);
+      return;
+    }
+
+    if (file.size === 0) {
+      setFileName(file.name);
+      setFileError("Selected package file is empty. Please choose a non-empty .portad or .zip archive.");
       setFileWarning(null);
       return;
     }
@@ -371,7 +396,10 @@ export default function Migrate() {
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-4 overflow-x-auto no-scrollbar rounded-2xl border border-slate-200 bg-slate-900 text-frost-100 p-4 font-mono text-[13px] leading-7 dark:border-white/10 dark:bg-space-950/70">
+                      <div
+                        data-testid="package-preview"
+                        className="mt-4 overflow-x-auto no-scrollbar rounded-2xl border border-slate-200 bg-slate-900 text-frost-100 p-4 font-mono text-[13px] leading-7 dark:border-white/10 dark:bg-space-950/70"
+                      >
                         <div className="mb-2 text-slate-400 dark:text-frost-600">
                           preview · {fileName}
                         </div>
@@ -414,7 +442,10 @@ export default function Migrate() {
                   Hosted runs are queued for the hosted plane. Until then, the exact
                   pipeline runs locally:
                 </p>
-                <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 dark:border-white/10 dark:bg-space-950">
+                <div
+                  data-testid="cli-terminal"
+                  className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 dark:border-white/10 dark:bg-space-950"
+                >
                   <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-2.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
@@ -423,7 +454,7 @@ export default function Migrate() {
                   </div>
                   <div className="p-4 font-mono text-sm leading-7 text-frost-300">
                     {CLI_RUN.map((cmd) => (
-                      <div key={cmd}>
+                      <div key={cmd} data-testid="cli-command">
                         <span className="text-brand-400">$ </span>
                         {cmd}
                       </div>
@@ -449,15 +480,26 @@ export default function Migrate() {
       </div>
 
       {/* Nav */}
-      <div className="mt-6 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setStep((current) => Math.max(0, current - 1) as Step)}
-          disabled={step === 0}
-          className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-transparent dark:text-frost-300 dark:shadow-none dark:hover:border-white/35 dark:hover:text-white"
-        >
-          Back
-        </button>
+      <div className="mt-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setStep((current) => Math.max(0, current - 1) as Step)}
+            disabled={step === 0}
+            className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-transparent dark:text-frost-300 dark:shadow-none dark:hover:border-white/35 dark:hover:text-white"
+          >
+            Back
+          </button>
+          {hasActiveProgress && (
+            <button
+              type="button"
+              onClick={() => setShowDiscardDialog(true)}
+              className="rounded-full border border-red-200 bg-white px-3.5 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-500/30 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-950/20"
+            >
+              Discard
+            </button>
+          )}
+        </div>
         <div className="font-mono text-xs text-slate-500 dark:text-frost-600">
           step {step + 1} / {STEP_LABELS.length}
         </div>
@@ -470,6 +512,53 @@ export default function Migrate() {
           {step === 2 ? "Continue" : "Next"}
         </button>
       </div>
+
+      {statusAnnouncement && (
+        <p role="status" className="sr-only">
+          {statusAnnouncement}
+        </p>
+      )}
+
+      {showDiscardDialog && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="discard-dialog-title"
+          aria-describedby="discard-dialog-description"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
+        >
+          <div className="glass w-full max-w-md rounded-2xl p-6 shadow-xl dark:border-white/15 dark:bg-space-900">
+            <h3
+              id="discard-dialog-title"
+              className="text-lg font-semibold text-slate-900 dark:text-frost-50"
+            >
+              Discard migration in progress?
+            </h3>
+            <p
+              id="discard-dialog-description"
+              className="mt-2 text-sm leading-6 text-slate-600 dark:text-frost-400"
+            >
+              This will clear your selected source, destination platform, and attached package. This action cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDiscardDialog(false)}
+                className="rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-transparent dark:text-frost-300 dark:hover:bg-white/[0.04]"
+              >
+                Keep editing
+              </button>
+              <button
+                type="button"
+                onClick={handleDiscard}
+                className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600"
+              >
+                Discard and restart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
