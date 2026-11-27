@@ -14,12 +14,18 @@ describe("ErrorBoundary component", () => {
     render(<ErrorBoundary error={error} reset={reset} />);
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /something went wrong/i })).toBeInTheDocument();
-    expect(screen.getByText(/an unexpected error interrupted this page/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /something went wrong/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/an unexpected error interrupted this page/i),
+    ).toBeInTheDocument();
   });
 
   it("renders error digest when available", () => {
-    const error = Object.assign(new Error("Digest error"), { digest: "ERR_12345" });
+    const error = Object.assign(new Error("Digest error"), {
+      digest: "ERR_12345",
+    });
     const reset = vi.fn();
 
     render(<ErrorBoundary error={error} reset={reset} />);
@@ -47,5 +53,25 @@ describe("ErrorBoundary component", () => {
 
     const homeLink = screen.getByRole("link", { name: /back to overview/i });
     expect(homeLink).toHaveAttribute("href", "/");
+  });
+
+  it("does not log sensitive error details", () => {
+    const error = new Error("Sensitive test message");
+    const reset = vi.fn();
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<ErrorBoundary error={error} reset={reset} />);
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Dashboard caught unhandled runtime error:",
+      "No error ID available",
+    );
+
+    expect(consoleSpy).not.toHaveBeenCalledWith(
+      "Dashboard caught unhandled runtime error:",
+      error,
+    );
+
+    consoleSpy.mockRestore();
   });
 });
