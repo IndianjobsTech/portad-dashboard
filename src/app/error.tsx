@@ -12,7 +12,10 @@ interface ErrorProps {
 export default function ErrorBoundary({ error, reset }: ErrorProps) {
   useEffect(() => {
     // Log unexpected runtime errors to telemetry/console securely
-    console.error("Dashboard caught unhandled runtime error:", error);
+    console.error(
+      "Dashboard caught unhandled runtime error:",
+      error.digest ? { digest: error.digest } : "No error ID available",
+    );
   }, [error]);
 
   return (
@@ -32,7 +35,8 @@ export default function ErrorBoundary({ error, reset }: ErrorProps) {
           Something went wrong
         </h1>
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-600 dark:text-frost-400">
-          An unexpected error interrupted this page. Your migration progress was preserved where possible.
+          An unexpected error interrupted this page. Your migration progress was
+          preserved where possible.
         </p>
 
         {error.digest && (
