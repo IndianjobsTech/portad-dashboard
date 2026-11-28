@@ -3,6 +3,7 @@ import Link from "next/link";
 import Accordion from "@/components/accordion";
 import ApiStatus from "@/components/api-status";
 import Carousel from "@/components/carousel";
+import HeroRibbon from "@/components/hero-ribbon";
 import HeroVisual from "@/components/hero-visual";
 import {
   IconArrowRight,
@@ -27,6 +28,7 @@ import Marquee from "@/components/marquee";
 import Process from "@/components/process";
 import Reveal from "@/components/reveal";
 import Terminal from "@/components/terminal";
+import TiltCard from "@/components/tilt-card";
 
 const FEATURES = [
   {
@@ -159,83 +161,96 @@ function Cell({ value }: { value: boolean | "partial" }) {
 
 export default function Home() {
   return (
-    <>
+    <div className="relative overflow-x-clip">
+      {/* ── Global Slow-Motion 3D Aurora / Ribbon Canvas across entire page ── */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-[#f6f3ff] via-[#f4f7fc] to-[#ecfeff] dark:from-[#060607] dark:via-[#070709] dark:to-[#060607]"
+      >
+        <div
+          className="animate-aurora-3d-one absolute -left-1/4 -top-1/4 h-[85vh] w-[140vw] rounded-[100%] opacity-50 blur-[80px] dark:opacity-80"
+          style={{
+            background:
+              "conic-gradient(from 210deg at 45% 55%, rgba(6,6,7,0) 0deg, rgba(168,85,247,0.45) 55deg, rgba(236,72,153,0.5) 115deg, rgba(8,207,254,0.45) 170deg, rgba(6,6,7,0) 240deg)",
+          }}
+        />
+        <div
+          className="animate-aurora-3d-two absolute -bottom-1/3 -right-1/4 h-[80vh] w-[120vw] rounded-[100%] opacity-35 blur-[90px] dark:opacity-55"
+          style={{
+            background:
+              "radial-gradient(ellipse at 60% 50%, rgba(8,207,254,0.38), rgba(168,85,247,0.28) 45%, transparent 72%)",
+          }}
+        />
+        <div className="grid-bg absolute inset-0 opacity-60" />
+      </div>
+
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden border-b border-slate-200/80 dark:border-white/8">
-        <div aria-hidden className="grid-bg absolute inset-0" />
-        <div
-          aria-hidden
-          className="animate-drift absolute -top-32 left-1/4 h-[480px] w-[560px] rounded-full bg-brand-600/25 blur-[130px]"
-        />
-        <div
-          aria-hidden
-          className="animate-drift absolute -right-20 top-40 h-[380px] w-[420px] rounded-full bg-ice-400/15 blur-[120px]"
-        />
+      <div className="relative border-b border-slate-200/70 text-slate-900 dark:border-white/10 dark:text-white">
+        <HeroRibbon />
 
-        <Section className="relative py-24 sm:py-28">
-          <div className="grid items-center gap-14 lg:grid-cols-[1.15fr_1fr]">
+        <Section className="relative py-20 sm:py-28">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
             <div>
-              <Reveal>
-                <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-slate-700 shadow-xs dark:text-frost-300 dark:shadow-none">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-brand-400 to-ice-400" />
-                  Local-first data portability · v0.1
-                </span>
-              </Reveal>
-
-              <Reveal delay={0.08}>
-                <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-tight text-gradient-soft sm:text-6xl lg:text-7xl">
-                  Move your workspace.
+              <Reveal delay={0.05} y={18}>
+                <h1 className="text-4xl font-bold leading-[1.06] tracking-tight text-slate-950 sm:text-6xl lg:text-[68px] dark:text-white">
+                  Move your
                   <br />
-                  <span className="text-gradient-brand">Keep the truth.</span>
+                  workspace.
+                  <br />
+                  <span className="text-sky-600 dark:text-[#08CFFE]">Keep the truth.</span>
                 </h1>
               </Reveal>
 
-              <Reveal delay={0.16}>
-                <p className="mt-6 max-w-xl text-lg leading-8 text-frost-400">
-                  PortaD exports a SaaS workspace into a neutral, checksummed package,
-                  reports exactly what will survive the trip, and imports it into the
-                  target system — with a diff at the end that proves nothing was invented.
+              <Reveal delay={0.18} y={16}>
+                <p className="mt-6 max-w-xl text-base leading-7 text-slate-700 sm:text-lg dark:text-[#D6D7E6]">
+                  Export any SaaS workspace into a checksummed .portad package,
+                  verify every field against your rules, and import into the target
+                  system with round-trip proof.
                 </p>
               </Reveal>
 
-              <Reveal delay={0.24}>
-                <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Reveal delay={0.28} y={14}>
+                <div className="mt-8 flex flex-wrap items-center gap-3.5">
                   <Link
                     href="/migrate"
-                    className="btn-gradient group inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all"
+                    className="btn-primary group inline-flex items-center gap-2.5 rounded-full py-2.5 pl-5 pr-2.5 text-sm font-semibold"
                   >
-                    Start a migration
-                    <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    <span>Start a migration</span>
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#08CFFE] text-slate-950 transition-transform duration-300 group-hover:rotate-45 dark:bg-[#060607] dark:text-white">
+                      <IconArrowRight className="h-3.5 w-3.5 -rotate-45" />
+                    </span>
                   </Link>
                   <Link
                     href="/compatibility"
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-6 py-3 text-sm font-medium text-slate-700 shadow-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 dark:border-white/15 dark:bg-transparent dark:text-frost-200 dark:shadow-none dark:hover:border-white/35 dark:hover:text-white"
+                    className="btn-glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium"
                   >
                     See what moves
                   </Link>
                 </div>
               </Reveal>
 
-              <Reveal delay={0.32}>
-                <div className="mt-8">
+              <Reveal delay={0.36} y={12}>
+                <div className="mt-8 flex flex-wrap items-center gap-4">
+                  <span className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-slate-600 dark:text-[rgba(232,226,250,0.74)]">
+                    <span className="h-2 w-2 rounded-full border border-sky-600 dark:border-[#08CFFE]" />
+                    Local-first · SHA-256 verified · v0.1
+                  </span>
                   <ApiStatus />
                 </div>
               </Reveal>
             </div>
 
-            <Reveal delay={0.2} className="flex justify-center lg:justify-end">
-              <div className="animate-floaty">
-                <HeroVisual />
-              </div>
-            </Reveal>
+            <div className="flex justify-center lg:justify-end">
+              <HeroVisual />
+            </div>
           </div>
         </Section>
       </div>
 
       {/* ── Marquee ─────────────────────────────────────────── */}
-      <div className="border-b border-white/8 bg-space-950/60 py-10">
-        <p className="mb-6 text-center text-xs font-medium uppercase tracking-[0.24em] text-frost-300">
-          Adapters being built for the tools you already use
+      <div className="border-b border-slate-200/70 bg-white/40 py-10 backdrop-blur-md dark:border-white/8 dark:bg-white/[0.02]">
+        <p className="mb-6 text-center text-xs font-medium text-frost-400">
+          Adapters built for the tools you already use
         </p>
         <Marquee />
       </div>
@@ -253,7 +268,7 @@ export default function Home() {
       </Section>
 
       {/* ── Features ────────────────────────────────────────── */}
-      <div className="border-y border-slate-200/80 bg-slate-50/70 dark:border-white/8 dark:bg-space-950/60">
+      <div className="border-y border-slate-200/70 bg-white/35 backdrop-blur-md dark:border-white/8 dark:bg-white/[0.02]">
         <Section id="features">
           <SectionHeading
             eyebrow="Principles"
@@ -263,21 +278,25 @@ export default function Home() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2">
             {FEATURES.map((feature, i) => {
               const Icon = feature.icon;
+              const iconTones = [
+                "border-orange-500/30 bg-orange-500/12 text-orange-600 dark:text-orange-400",
+                "border-emerald-500/30 bg-emerald-500/12 text-emerald-600 dark:text-emerald-400",
+                "border-indigo-500/30 bg-indigo-500/12 text-indigo-600 dark:text-indigo-400",
+                "border-teal-500/30 bg-teal-500/12 text-teal-600 dark:text-teal-400",
+              ];
               return (
-                <Reveal key={feature.title} delay={i * 0.08}>
-                  <div className="glass group relative h-full overflow-hidden rounded-2xl p-7 transition duration-300 hover:-translate-y-1 hover:border-brand-400/40">
-                    <div
-                      aria-hidden
-                      className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand-500/0 blur-2xl transition group-hover:bg-brand-500/20"
-                    />
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-brand-500/15 to-ice-400/10 text-brand-600 ring-1 ring-brand-200 dark:from-brand-500/25 dark:text-brand-300 dark:ring-brand-400/30">
+                <Reveal key={feature.title} delay={i * 0.06}>
+                  <TiltCard className="glass group relative h-full rounded-2xl p-6 transition-colors hover:border-orange-500/40">
+                    <span
+                      className={`grid h-10 w-10 place-items-center rounded-xl border ${iconTones[i % iconTones.length]}`}
+                    >
                       <Icon className="h-5 w-5" />
                     </span>
-                    <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-frost-50">
+                    <h3 className="mt-5 text-lg font-medium text-slate-900 dark:text-frost-50">
                       {feature.title}
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-frost-400">{feature.body}</p>
-                  </div>
+                  </TiltCard>
                 </Reveal>
               );
             })}
@@ -297,25 +316,25 @@ export default function Home() {
             {CATEGORIES.map((category) => {
               const Icon = category.icon;
               return (
-                <div
+                <TiltCard
                   key={category.title}
-                  className="glass w-[260px] shrink-0 snap-start rounded-2xl p-5 sm:p-6 transition duration-300 hover:border-brand-400/40 sm:w-[320px]"
+                  className="glass w-[260px] shrink-0 snap-start rounded-2xl p-5 sm:p-6 transition-colors hover:border-orange-500/40 sm:w-[320px]"
                 >
-                  <span className="grid h-11 w-11 place-items-center rounded-xl border border-slate-200 bg-white text-brand-600 shadow-xs dark:border-white/10 dark:bg-white/[0.05] dark:text-brand-300 dark:shadow-none">
+                  <span className="grid h-11 w-11 place-items-center rounded-xl border border-orange-500/25 bg-orange-500/10 text-orange-600 dark:text-orange-400">
                     <Icon className="h-5 w-5" />
                   </span>
                   <h3 className="mt-5 font-semibold text-slate-900 dark:text-frost-50">{category.title}</h3>
                   <p className="mt-1.5 text-sm leading-6 text-slate-600 dark:text-frost-400">{category.body}</p>
                   <span
-                    className={`mt-4 inline-flex rounded-full border px-2.5 py-1 font-mono text-[11px] font-medium tracking-wider ${
+                    className={`mt-4 inline-flex rounded-full border px-2.5 py-1 font-mono text-[11px] font-medium ${
                       category.fidelity === "PRESERVED"
-                        ? "border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-300"
-                        : "border-blue-500/30 bg-blue-50 text-blue-700 dark:border-blue-400/25 dark:bg-blue-400/10 dark:text-blue-300"
+                        ? "border-emerald-500/35 bg-emerald-500/12 text-emerald-700 dark:text-emerald-300"
+                        : "border-indigo-500/35 bg-indigo-500/12 text-indigo-700 dark:text-indigo-300"
                     }`}
                   >
-                    {category.fidelity}
+                    {category.fidelity === "PRESERVED" ? "Preserved" : "Transformed"}
                   </span>
-                </div>
+                </TiltCard>
               );
             })}
           </Carousel>
@@ -323,17 +342,17 @@ export default function Home() {
       </Section>
 
       {/* ── CLI + terminal ──────────────────────────────────── */}
-      <div className="border-y border-slate-200/80 bg-slate-50/70 dark:border-white/8 dark:bg-space-950/60">
+      <div className="border-y border-slate-200/70 bg-white/35 backdrop-blur-md dark:border-white/8 dark:bg-white/[0.02]">
         <Section id="cli">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
+              <p className="font-mono text-xs font-medium text-brand-600 dark:text-brand-400">
                 From your terminal
               </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-gradient-soft sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-medium tracking-tight text-frost-100 sm:text-4xl">
                 The hosted UI mirrors
                 <br />
-                the CLI, exactly.
+                the CLI, exactly
               </h2>
               <p className="mt-4 max-w-lg leading-7 text-slate-600 dark:text-frost-400">
                 Every button in this dashboard maps to a command you can run yourself.
@@ -426,28 +445,24 @@ export default function Home() {
       {/* ── Security band ───────────────────────────────────── */}
       <Section id="security" className="pb-4!">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl border border-slate-800/20 bg-gradient-to-br from-slate-900 via-space-900 to-brand-950 p-8 text-white shadow-xl sm:p-12 dark:border-brand-400/25 dark:from-brand-600/20 dark:via-space-850 dark:to-ice-500/10 dark:shadow-none">
-            <div
-              aria-hidden
-              className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand-500/25 blur-3xl"
-            />
+          <div className="glass-strong hairline relative overflow-hidden rounded-2xl p-8 sm:p-12">
             <div className="relative grid gap-10 md:grid-cols-[1.2fr_1fr]">
               <div>
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-brand-300 ring-1 ring-white/15">
-                  <IconFingerprint className="h-6 w-6" />
+                <span className="grid h-11 w-11 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-brand-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-brand-400">
+                  <IconFingerprint className="h-5 w-5" />
                 </span>
-                <h2 className="mt-6 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                <h2 className="mt-6 text-3xl font-medium tracking-tight text-frost-100 sm:text-4xl">
                   Your data never moves
                   <br />
-                  without you saying so.
+                  without you saying so
                 </h2>
-                <p className="mt-4 max-w-lg leading-7 text-frost-300">
+                <p className="mt-4 max-w-lg leading-7 text-frost-400">
                   The package format, the checksums and the diff report are designed so
                   you can hand them to a security team and they can hand them back with
                   questions — not shrugs.
                 </p>
               </div>
-              <ul className="space-y-4 self-center">
+              <ul className="space-y-3 self-center">
                 {[
                   { icon: IconLock, text: "Local-first: nothing uploads unless you choose the hosted plane" },
                   { icon: IconShield, text: "SHA-256 checksums on every file, verified on both ends" },
@@ -457,12 +472,12 @@ export default function Home() {
                   return (
                     <li
                       key={item.text}
-                      className="flex items-start gap-3.5 rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-md"
+                      className="flex items-start gap-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 dark:border-white/8 dark:bg-white/[0.03]"
                     >
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 text-brand-300">
-                        <Icon className="h-4.5 w-4.5" />
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-brand-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-brand-400">
+                        <Icon className="h-4 w-4" />
                       </span>
-                      <span className="text-sm leading-6 text-frost-100">{item.text}</span>
+                      <span className="text-sm leading-6 text-frost-200">{item.text}</span>
                     </li>
                   );
                 })}
@@ -488,30 +503,26 @@ export default function Home() {
       {/* ── CTA ─────────────────────────────────────────────── */}
       <Section id="cta" className="pt-4!">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-8 py-16 text-center shadow-md sm:px-12 dark:border-white/10 dark:bg-space-850 dark:from-space-850 dark:to-space-850 dark:shadow-none">
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-20%,rgba(22,104,255,0.18),transparent_70%)] dark:bg-[radial-gradient(ellipse_60%_80%_at_50%_-20%,rgba(22,104,255,0.35),transparent_70%)]"
-            />
+          <div className="glass-strong hairline relative overflow-hidden rounded-2xl px-8 py-16 text-center sm:px-12">
             <div className="relative">
-              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-gradient-soft sm:text-4xl">
+              <h2 className="mx-auto max-w-2xl text-3xl font-medium tracking-tight text-frost-100 sm:text-4xl">
                 The open way to move your data
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-frost-400">
+              <p className="mx-auto mt-4 max-w-xl text-frost-400">
                 Start with the fixtures demo — no accounts, no credentials, the whole
                 pipeline in under a minute.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href="/migrate"
-                  className="btn-gradient group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-all"
+                  className="btn-primary group inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium"
                 >
                   Start a migration
                   <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   href="/jobs"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-7 py-3.5 text-sm font-medium text-slate-700 shadow-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 dark:border-white/15 dark:bg-transparent dark:text-frost-200 dark:shadow-none dark:hover:border-white/35 dark:hover:text-white"
+                  className="btn-glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium"
                 >
                   View jobs
                 </Link>
@@ -520,6 +531,6 @@ export default function Home() {
           </div>
         </Reveal>
       </Section>
-    </>
+    </div>
   );
 }
